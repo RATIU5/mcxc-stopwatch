@@ -1,0 +1,60 @@
+.copyright {
+	background: rgb(36, 36, 36);
+	color: rgb(194, 194, 194);
+	padding: 2rem 1rem 2rem 1rem;
+
+	p {
+		text-align: center;
+		margin: 0;
+
+		a {
+			color: rgb(138, 182, 194);
+			margin: 0 0.5rem;
+			position: relative;
+			border: none;
+			text-decoration: none;
+			transition: all ease 100ms;
+
+			&:before {
+				content: "[";
+				position: absolute;
+				left: 10%;
+				top: -1px;
+				opacity: 0;
+				transition: all ease 100ms;
+			}
+
+			&:after {
+				content: "]";
+				position: absolute;
+				right: 10%;
+				top: -1px;
+				opacity: 0;
+				transition: all ease 100ms;
+			}
+
+			&:hover {
+				color: rgb(156, 207, 221);
+			}
+
+			&:active,
+			&:focus {
+				color: rgb(111, 145, 155);
+			}
+
+			&:hover:before,
+			&:active:before,
+			&:focus:before {
+				left: -8px;
+				opacity: 1;
+			}
+
+			&:hover:after,
+			&:active:after,
+			&:focus:after {
+				right: -8px;
+				opacity: 1;
+			}
+		}
+	}
+}
