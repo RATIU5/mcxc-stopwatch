@@ -1,6 +1,154 @@
+@import "../../variables";
 @import "~@blueprintjs/core/lib/scss/variables";
 
 .container {
 	margin: 1rem;
+	display: flex;
+	flex-direction: column;
+	background: $light-gray4;
+	border-radius: 0.5rem;
+	min-width: 18em;
+	min-height: 30em;
+	overflow: hidden;
+}
+
+// Header
+
+.header {
+	position: relative;
+	width: 100%;
+	z-index: 2;
+}
+
+.header_overflow_shadow {
+	box-shadow: 0 0.25em 2em -0.5em $gray3;
+}
+
+.header_titleBar {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: 0.75em;
+}
+
+.header_titleBar_title {
+	font-size: 1.5em;
+	font-weight: 600;
+}
+
+.space {
+	flex: 1 0;
+	padding: 0 1rem;
+}
+
+.header_timerBar {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 -0.15em 0 0 $light-gray2;
+	padding: 0.5em 0.75em;
+}
+
+.header_timeBar_counter {
+	font-size: 1.15em;
+	font-weight: 400;
+	margin: 0;
+}
+
+// Body
+
+.record_list {
+	flex: 1 0;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	padding: 1em 0;
+	list-style: none;
+	background: $gray5;
+	z-index: 0;
+}
+
+.record_list_item {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	padding: 0.5em 0.75em;
+	backface-visibility: hidden;
+
+	&:hover .record_item_button.button_remove {
+		transform: scale(1, 1);
+		opacity: 1;
+	}
+
+	&:nth-child(even) {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+}
+
+.record_list_item_p {
+	margin: 0;
+}
+
+.record_item_button {
+	opacity: 0;
+	transform: scale(0.5, 0.5);
+	transition: all ease 200ms;
+}
+
+.record_item_button.button_add {
+	position: absolute;
+	display: inline-block;
+	text-align: center;
+	right: 1em;
+	top: -0.7em;
+}
+
+.button_add_trigger_area {
+	position: absolute;
+	width: 40%;
+	height: 40%;
+	top: -15%;
+	right: 0;
+	backface-visibility: hidden;
+	// pointer-events: none;
+	// background-color: rgba(0, 0, 0, 0.1);
+
+	&:hover .record_item_button.button_add {
+		transform: scale(1, 1);
+		opacity: 1;
+	}
+}
+
+.footer {
+	width: 100%;
+	z-index: 1;
+}
+
+.footer_display {
+	font-weight: 400;
+	text-align: center;
+	margin: 0.5em;
+}
+
+.footer_buttons {
 	background: $light-gray3;
+	width: 100%;
+}
+
+.footer_buttons_button {
+	border-radius: 0 !important;
+
+	// &:nth-child(2) {
+	// 	box-shadow: -0.1em 0 0 0 #bfccd6, 0.1em 0 0 0 #bfccd6 !important;
+	// }
+}
+
+.footer_button_text {
+	font-size: $font-size !important;
+	margin: 0.5rem 0;
 }
