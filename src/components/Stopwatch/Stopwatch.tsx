@@ -1,23 +1,56 @@
-import { Button, ButtonGroup, EditableText, Intent } from "@blueprintjs/core";
+import { Button, ButtonGroup, EditableText, H5, Intent } from "@blueprintjs/core";
+import PopoverButton from "../UI/PopupButton";
+import React from "react";
+import { conf } from "../../conf";
+import useRecords from "../../hooks/use_record";
+import useStopwatch from "../../hooks/use_stopwatch";
+import { StopwatchProps } from "../../Types/stopwatch";
+import { displayTime, randomId } from "../../util/functions";
+import Record from "./Record";
 import styles from "./Stopwatch.module.scss";
-
-export type RecordProps = {
-	id: string;
-	time: number;
-};
-
-export type StopwatchProps = {
-	id: string;
-	dateCreated: number;
-	name?: string;
-	initialTime?: number;
-	initialRecords?: RecordProps[];
-};
+import { Classes } from "@blueprintjs/popover2";
 
 const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
-	const currentTime = props.initialTime;
-	const records = props.initialRecords || [];
-	const stopwatchIsOn = false;
+	// const records = props.initialRecords || [];
+	const { records, add: addRecord, remove: removeRecord, clear: clearRecords } = useRecords();
+
+	const {
+		time: currentTime,
+		start: startStopwatch,
+		pause: pauseStopwatch,
+		reset: resetStopwatch,
+		isRunning,
+	} = useStopwatch();
+
+	const startButtonHandler = () => {
+		startStopwatch();
+	};
+	const pauseButtonHandler = () => {
+		pauseStopwatch();
+	};
+	const resetButtonHandler = () => {
+		resetStopwatch();
+		clearRecords();
+	};
+	const recordButtonHandler = () => {
+		if (isRunning)
+			addRecord({
+				id: randomId(),
+				time: currentTime,
+			});
+	};
+	const copyButtonHandler = () => {
+		console.log("COPY");
+	};
+	const closeButtonHandler = () => {
+		console.log("CLOSE");
+	};
+	const removeRecordHandler = (id: string) => {
+		removeRecord(id);
+	};
+	const addRecordHandler = (place: number) => {
+		console.log(`ADD BEFORE ${place}`);
+	};
 
 	return (
 		<div className={styles.container}>
@@ -29,61 +62,105 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 						selectAllOnFocus
 					/>
 					<span className={styles.space}></span>
-					<Button icon="cross" intent={Intent.DANGER} large minimal />
+					<Button
+						onClick={closeButtonHandler}
+						icon="cross"
+						intent={Intent.DANGER}
+						large
+						minimal
+					/>
 				</div>
 				<div className={styles.header_timerBar}>
 					<h4 className={styles.header_timeBar_counter}>{records.length} Total</h4>
 					<span className={styles.space}></span>
-					<Button rightIcon="clipboard" intent={Intent.PRIMARY} large minimal>
+					<Button
+						onClick={copyButtonHandler}
+						rightIcon="clipboard"
+						intent={Intent.PRIMARY}
+						large
+						minimal
+					>
 						Copy
 					</Button>
 				</div>
 			</header>
 			<ul className={styles.record_list}>
 				{records.map((r, i) => (
-					<li key={r.id} className={styles.record_list_item}>
-						<p className={styles.record_list_item_p}>{i + 1}</p>
-						<span className={styles.space}></span>
-						<p className={styles.record_list_item_p}>{r.time}</p>
-						<span className={styles.space}></span>
-						<div className={styles.button_add_trigger_area}>
-							<Button
-								className={`${styles.record_item_button} ${styles.button_add}`}
-								icon="plus"
-								intent={Intent.PRIMARY}
-								minimal
-							/>
-						</div>
-						<Button
-							className={`${styles.record_item_button} ${styles.button_remove}`}
-							icon="cross"
-							intent={Intent.DANGER}
-							minimal
-						/>
-					</li>
+					<Record
+						key={r.id}
+						id={r.id}
+						place={i + 1}
+						time={r.time}
+						onAdd={addRecordHandler}
+						onRemove={removeRecordHandler}
+					/>
 				))}
 			</ul>
 			<footer className={styles.footer}>
-				<h4 className={styles.footer_display}>{currentTime}</h4>
+				<h4 className={styles.footer_display}>
+					{displayTime(currentTime, conf.timeFormat)}
+				</h4>
 				<ButtonGroup className={styles.footer_buttons} fill minimal>
 					<Button
+						onClick={(isRunning && pauseButtonHandler) || startButtonHandler}
 						className={styles.footer_buttons_button}
-						intent={(stopwatchIsOn && Intent.WARNING) || Intent.SUCCESS}
+						intent={(isRunning && Intent.WARNING) || Intent.SUCCESS}
 						text={
 							<p className={styles.footer_button_text}>
-								{(stopwatchIsOn && "Pause") || "Start"}
+								{(isRunning && "Pause") || "Start"}
 							</p>
 						}
 					/>
 					<Button
+						onClick={recordButtonHandler}
 						className={styles.footer_buttons_button}
 						intent={Intent.PRIMARY}
+						disabled={!isRunning}
 						text={<p className={styles.footer_button_text}>Record</p>}
 					/>
-					<Button
-						className={styles.footer_buttons_button}
-						intent={Intent.DANGER}
-						text={<p className={styles.footer_button_text}>Reset</p>}
+					<PopoverButton
+						usePopup={records.length !== 0}
+						button={
+							<Button
+								onClick={records.length === 0 ? resetButtonHandler : undefined}
+								className={styles.footer_buttons_button}
+								intent={Intent.DANGER}
+								text={<p className={styles.footer_button_text}>Reset</p>}
+							/>
+						}
+						popover={
+							<div key="text">
+								<H5>Confirm deletion</H5>
+								<p>
+									Are you sure you want to delete{" "}
+									{records.length === 1 && "this record"}
+									{records.length > 1 && `all ${records.length} records`}?
+								</p>
+								<div
+									style={{
+										display: "flex",
+										justifyContent: "flex-end",
+										marginTop: 15,
+									}}
+								>
+									<Button
+										className={Classes.POPOVER2_DISMISS}
+										style={{ marginRight: 10 }}
+										large
+									>
+										Cancel
+									</Button>
+									<Button
+										onClick={resetButtonHandler}
+										intent={Intent.DANGER}
+										className={Classes.POPOVER2_DISMISS}
+										large
+									>
+										Delete
+									</Button>
+								</div>
+							</div>
+						}
 					/>
 				</ButtonGroup>
 			</footer>

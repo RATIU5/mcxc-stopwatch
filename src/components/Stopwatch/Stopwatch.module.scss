@@ -67,7 +67,9 @@
 	flex-direction: column;
 	padding: 1em 0;
 	list-style: none;
-	background: $gray5;
+	background: $light-gray3;
+	max-height: 18.2em;
+	overflow: auto;
 	z-index: 0;
 }
 
