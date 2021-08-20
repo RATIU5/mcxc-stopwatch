@@ -76,13 +76,14 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 		copyDataToClipboard();
 	};
 	const closeButtonHandler = () => {
-		console.log("CLOSE");
+		dispatch("REMOVE_STOPWATCH", props.id)
 	};
 	const removeRecordHandler = (id: string) => {
 		removeRecord(id);
 	};
 	const addRecordHandler = (position: number) => {
-		addRecordAt(position, { id: randomId(), time: 0 });
+		if (isRunning)
+			addRecordAt(position, { id: randomId(), time: 0 });
 	};
 
 	return (
@@ -95,13 +96,49 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 						selectAllOnFocus
 					/>
 					<span className={styles.space}></span>
-					<Button
-						onClick={closeButtonHandler}
+					<PopoverButton
+						usePopup={isRunning}
+						button={
+							<Button
+						onClick={!isRunning ? closeButtonHandler : undefined}
 						icon="cross"
 						intent={Intent.DANGER}
 						large
 						minimal
-						disabled
+						// disabled
+					/>
+						}
+						popover={
+							<div key="text">
+								<H5>Confirm Delete</H5>
+								<p>
+									{`Are you sure you want to delete this stopwatch${records.length > 1 ? ` and all ${records.length} marks` : records.length > 0 ? " the contained mark" : ""}?`}
+								</p>
+								<div
+									style={{
+										display: "flex",
+										justifyContent: "flex-end",
+										marginTop: 15,
+									}}
+								>
+									<Button
+										className={Classes.POPOVER2_DISMISS}
+										style={{ marginRight: 10 }}
+										large
+									>
+										Cancel
+									</Button>
+									<Button
+										onClick={closeButtonHandler}
+										intent={Intent.DANGER}
+										className={Classes.POPOVER2_DISMISS}
+										large
+									>
+										Delete
+									</Button>
+								</div>
+							</div>
+						}
 					/>
 				</div>
 				<div className={styles.header_timerBar}>
@@ -162,11 +199,10 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 						}
 						popover={
 							<div key="text">
-								<H5>Confirm deletion</H5>
+								<H5>Confirm Reset</H5>
 								<p>
-									Are you sure you want to delete{" "}
-									{records.length === 1 && "this record"}
-									{records.length > 1 && `all ${records.length} records`}?
+									{`Are you sure you want to reset the stopwatch and delete
+									${records.length < 2 ? "this record" : `all ${records.length} records`}?`}
 								</p>
 								<div
 									style={{
@@ -183,7 +219,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 										Cancel
 									</Button>
 									<Button
-										onClick={resetButtonHandler}
+										onClick={closeButtonHandler}
 										intent={Intent.DANGER}
 										className={Classes.POPOVER2_DISMISS}
 										large

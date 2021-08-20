@@ -1,12 +1,13 @@
 import { randomId } from "./../util/functions";
 import { StoreActionsObj } from "../Types/store";
 import { initStore } from "./store";
+import {StopwatchProps} from "../Types/stopwatch";
 
 const configureStore = () => {
 	// console.log("CONFIGURING STORE");
 	
 	const actions: StoreActionsObj = {
-		RECORD_MARK: (curState, stopwatchId) => {
+		RECORD_MARK: (state, stopwatchId) => {
 			console.log("RECORD MARK:", stopwatchId);
 
 			return {};
@@ -25,6 +26,12 @@ const configureStore = () => {
 				],
 			};
 		},
+		REMOVE_STOPWATCH: (state, id) => {
+			return {
+				...state,
+				stopwatches: state.stopwatches.filter((sw: StopwatchProps) => sw.id !== id),
+			}
+		}
 	};
 	initStore(actions, {
 		stopwatches: []
