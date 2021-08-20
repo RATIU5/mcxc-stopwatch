@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, EditableText, H5, Intent } from "@blueprintjs/core";
 import PopoverButton from "../UI/PopupButton";
-import React from "react";
+import React, { useState } from "react";
 import { conf } from "../../conf";
 import useRecords from "../../hooks/use_record";
 import useStopwatch from "../../hooks/use_stopwatch";
@@ -9,30 +9,52 @@ import { displayTime, randomId } from "../../util/functions";
 import Record from "./Record";
 import styles from "./Stopwatch.module.scss";
 import { Classes } from "@blueprintjs/popover2";
+import useCopyToClipboard from "../../hooks/use_copyToClipboard";
+import useTimeout from "../../hooks/use_timeout";
+import { useStore } from "../../store/store";
 
-const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
-	// const records = props.initialRecords || [];
-	const { records, add: addRecord, remove: removeRecord, clear: clearRecords } = useRecords();
+const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) => {
+	// console.log("RENDERING STOPWATCH COMPONENT");
 
+	const dispatch = useStore(false)[1];
+
+	const {
+		records,
+		add: addRecord,
+		remove: removeRecord,
+		clear: clearRecords,
+		addAt: addRecordAt,
+	} = useRecords();
 	const {
 		time: currentTime,
 		start: startStopwatch,
-		pause: pauseStopwatch,
+		// pause: pauseStopwatch,
 		reset: resetStopwatch,
 		isRunning,
 	} = useStopwatch();
+	const copyToClipboard = useCopyToClipboard()[1];
+	const [copied, setCopied] = useState(false);
 
 	const startButtonHandler = () => {
 		startStopwatch();
 	};
-	const pauseButtonHandler = () => {
-		pauseStopwatch();
+
+	const resetCopyText = () => {
+		setCopied(false);
 	};
+	// Timeout for copy text
+	useTimeout(resetCopyText, copied ? 3000 : null);
+
+	// const pauseButtonHandler = () => {
+	// 	pauseStopwatch();
+	// };
 	const resetButtonHandler = () => {
 		resetStopwatch();
 		clearRecords();
+		setCopied(false);
 	};
 	const recordButtonHandler = () => {
+		dispatch("RECORD_MARK", props.id);
 		if (isRunning)
 			addRecord({
 				id: randomId(),
@@ -40,7 +62,18 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 			});
 	};
 	const copyButtonHandler = () => {
-		console.log("COPY");
+		const copyDataToClipboard = async () => {
+			let recordsStr = "";
+			// const copiedRecords = records.forEach((e) => {
+			// 	recordsStr += displayTime(e.time, conf.timeFormat) + "\n";
+			// });
+
+			if (await copyToClipboard(recordsStr)) {
+				setCopied(true);
+			}
+		};
+
+		copyDataToClipboard();
 	};
 	const closeButtonHandler = () => {
 		console.log("CLOSE");
@@ -48,8 +81,8 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 	const removeRecordHandler = (id: string) => {
 		removeRecord(id);
 	};
-	const addRecordHandler = (place: number) => {
-		console.log(`ADD BEFORE ${place}`);
+	const addRecordHandler = (position: number) => {
+		addRecordAt(position, { id: randomId(), time: 0 });
 	};
 
 	return (
@@ -68,6 +101,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 						intent={Intent.DANGER}
 						large
 						minimal
+						disabled
 					/>
 				</div>
 				<div className={styles.header_timerBar}>
@@ -77,10 +111,11 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 						onClick={copyButtonHandler}
 						rightIcon="clipboard"
 						intent={Intent.PRIMARY}
+						disabled={records.length === 0}
 						large
 						minimal
 					>
-						Copy
+						{(copied && "Copied!") || "Copy"}
 					</Button>
 				</div>
 			</header>
@@ -102,14 +137,11 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 				</h4>
 				<ButtonGroup className={styles.footer_buttons} fill minimal>
 					<Button
-						onClick={(isRunning && pauseButtonHandler) || startButtonHandler}
+						onClick={startButtonHandler}
 						className={styles.footer_buttons_button}
-						intent={(isRunning && Intent.WARNING) || Intent.SUCCESS}
-						text={
-							<p className={styles.footer_button_text}>
-								{(isRunning && "Pause") || "Start"}
-							</p>
-						}
+						intent={Intent.SUCCESS}
+						disabled={isRunning}
+						text={<p className={styles.footer_button_text}>{"Start"}</p>}
 					/>
 					<Button
 						onClick={recordButtonHandler}
@@ -166,6 +198,6 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = (props) => {
 			</footer>
 		</div>
 	);
-};
+});
 
 export default Stopwatch;

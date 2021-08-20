@@ -7,3 +7,7 @@ export type StopwatchProps = {
 	initialTime?: number;
 	initialRecords?: RecordProps[];
 };
+
+export type StopwatchActions = {
+	RECORD_MARK: () => void;
+};

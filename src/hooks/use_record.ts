@@ -8,6 +8,16 @@ const useRecords = (initialArray?: RecordProps[]) => {
 		setRecords((prevRecords) => [...prevRecords, record]);
 	};
 
+	const addAt = (position: number, record: RecordProps) => {
+		// console.log(`INSERT AT ${position}`);
+
+		setRecords((prevRecords) => {
+			const altArr = prevRecords.slice();
+			altArr.splice(position, 0, record);
+			return altArr;
+		});
+	};
+
 	const remove = (id: string) => {
 		setRecords((prevRecords) => prevRecords.filter((r) => r.id !== id));
 	};
@@ -21,6 +31,7 @@ const useRecords = (initialArray?: RecordProps[]) => {
 		add,
 		remove,
 		clear,
+		addAt,
 	};
 };
 
