@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useInterval from "./use_interval";
 
-const useStopwatch = () => {
+const useStopwatch = (callback?: (time: number) => void) => {
 	const [time, setTime] = useState(0);
 	const [offset, setOffset] = useState(0);
 	const [isRunning, setIsRunning] = useState(false);
@@ -29,6 +29,7 @@ const useStopwatch = () => {
 
 	useInterval(
 		() => {
+			callback && callback(time);
 			setTime((prev) => prev + delta());
 		},
 		isRunning ? 10 : null

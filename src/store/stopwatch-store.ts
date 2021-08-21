@@ -43,6 +43,22 @@ const configureStore = () => {
 				stopwatches: newStopwatchesArray
 			}
 		},
+		UPDATE_TIME: (state, {stopwatchId, time}) => {
+			const newStopwatchesArray = state.stopwatches.slice();
+			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).time = time;
+			return {
+				...state,
+				newStopwatchesArray
+			}
+		},
+		CLEAR_TIME: (state, stopwatchId) => {
+			const newStopwatchesArray = state.stopwatches.slice();
+			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).time = null;
+			return {
+				...state,
+				newStopwatchesArray
+			}
+		},
 		ADD_STOPWATCH: (state) => {		
 			return {
 				stopwatches: [
