@@ -84,7 +84,8 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 		dispatch("REMOVE_STOPWATCH", props.id)
 	};
 	const removeRecordHandler = (id: string) => {
-		removeRecord(id);
+		dispatch("CLEAR_MARK", {stopwatchId: props.id, markId: id});
+		// removeRecord(id);
 	};
 	const addRecordHandler = (position: number) => {
 		if (isRunning)

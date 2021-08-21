@@ -24,6 +24,15 @@ const configureStore = () => {
 				stopwatches: newStopwatchesArray
 			}
 		},
+		CLEAR_MARK: (state, {stopwatchId, markId}) => {
+			const newStopwatchesArray = state.stopwatches;
+			const stopwatch = newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId);
+			stopwatch.marks = stopwatch.marks.filter((m: RecordProps) => m.id !== markId);
+			return {
+				...state,
+				stopwatches: newStopwatchesArray
+			}
+		},
 		ADD_STOPWATCH: (state) => {		
 			return {
 				stopwatches: [
