@@ -4,8 +4,6 @@ import Layout from "./components/Layout/Layout";
 import StopwatchManager from "./components/Stopwatch/StopwatchManager";
 import { useStore } from "./store/store";
 import configureStore from "./store/stopwatch-store";
-import { randomId } from "./util/functions";
-import { StopwatchProps } from "./Types/stopwatch";
 
 import { FocusStyleManager } from "@blueprintjs/core";
 

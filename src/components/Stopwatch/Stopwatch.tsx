@@ -10,7 +10,7 @@ import React, { useState } from "react";
 import { conf } from "../../conf";
 import useStopwatch from "../../hooks/use_stopwatch";
 import { StopwatchProps } from "../../Types/stopwatch";
-import { displayTime, randomId } from "../../util/functions";
+import { displayTime } from "../../util/functions";
 import Record from "./Record";
 import styles from "./Stopwatch.module.scss";
 import { Classes } from "@blueprintjs/popover2";
