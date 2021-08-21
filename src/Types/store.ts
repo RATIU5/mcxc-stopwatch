@@ -7,7 +7,7 @@ export type StoreActionsObj = {
 
 export type StoreListener = (p: StoreStateObj) => void;
 
-export type ActionPayload = string | number | {} | (() => void);
+export type ActionPayload = any;
 
 export type StoreDispatchProps = {
 	actionIdentifier: string;

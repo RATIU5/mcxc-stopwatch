@@ -1,16 +1,21 @@
+import { StopwatchProps } from './../Types/stopwatch';
+import { RecordProps } from './../Types/record';
 import { randomId } from "./../util/functions";
 import { StoreActionsObj } from "../Types/store";
 import { initStore } from "./store";
-import {StopwatchProps} from "../Types/stopwatch";
 
 const configureStore = () => {
 	// console.log("CONFIGURING STORE");
 	
 	const actions: StoreActionsObj = {
-		RECORD_MARK: (state, stopwatchId) => {
-			console.log("RECORD MARK:", stopwatchId);
-
-			return {};
+		RECORD_MARK: (state, {id, mark}) => {
+			const newStopwatchesArray = state.stopwatches;
+			newStopwatchesArray.find((s: StopwatchProps) => s.id === id).marks.push(mark);
+			console.log(newStopwatchesArray);
+			return {
+				...state,
+				stopwatches: [...newStopwatchesArray],
+			}
 		},
 		ADD_STOPWATCH: (state) => {		
 			return {
@@ -31,8 +36,9 @@ const configureStore = () => {
 				...state,
 				stopwatches: state.stopwatches.filter((sw: StopwatchProps) => sw.id !== id),
 			}
-		}
+		},
 	};
+	
 	initStore(actions, {
 		stopwatches: []
 	});

@@ -12,11 +12,13 @@ import { Classes } from "@blueprintjs/popover2";
 import useCopyToClipboard from "../../hooks/use_copyToClipboard";
 import useTimeout from "../../hooks/use_timeout";
 import { useStore } from "../../store/store";
+import { RecordProps } from "../../Types/record";
 
 const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) => {
 	// console.log("RENDERING STOPWATCH COMPONENT");
 
-	const dispatch = useStore(false)[1];
+	const [state, dispatch] = useStore(false);
+	const stopwatchState = state.stopwatches.find((s: StopwatchProps) => s.id === props.id);
 
 	const {
 		records,
@@ -42,31 +44,33 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 	const resetCopyText = () => {
 		setCopied(false);
 	};
+
 	// Timeout for copy text
 	useTimeout(resetCopyText, copied ? 3000 : null);
 
 	// const pauseButtonHandler = () => {
 	// 	pauseStopwatch();
 	// };
+
 	const resetButtonHandler = () => {
 		resetStopwatch();
 		clearRecords();
 		setCopied(false);
 	};
 	const recordButtonHandler = () => {
-		dispatch("RECORD_MARK", props.id);
 		if (isRunning)
-			addRecord({
-				id: randomId(),
-				time: currentTime,
-			});
+			dispatch("RECORD_MARK", {id: props.id, mark: {id: randomId(), time: currentTime}});
+		// addRecord({
+		// 	id: randomId(),
+		// 	time: currentTime,
+		// });
 	};
 	const copyButtonHandler = () => {
 		const copyDataToClipboard = async () => {
 			let recordsStr = "";
-			// const copiedRecords = records.forEach((e) => {
-			// 	recordsStr += displayTime(e.time, conf.timeFormat) + "\n";
-			// });
+			records.forEach((e) => {
+				recordsStr += displayTime(e.time, conf.timeFormat) + "\n";
+			});
 
 			if (await copyToClipboard(recordsStr)) {
 				setCopied(true);
@@ -97,10 +101,10 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 					/>
 					<span className={styles.space}></span>
 					<PopoverButton
-						usePopup={isRunning}
+						usePopup={isRunning || records.length !== 0}
 						button={
 							<Button
-						onClick={!isRunning ? closeButtonHandler : undefined}
+						onClick={!isRunning && records.length === 0 ? closeButtonHandler : undefined}
 						icon="cross"
 						intent={Intent.DANGER}
 						large
@@ -157,7 +161,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 				</div>
 			</header>
 			<ul className={styles.record_list}>
-				{records.map((r, i) => (
+				{stopwatchState.marks.map((r: RecordProps, i: number) => (
 					<Record
 						key={r.id}
 						id={r.id}
@@ -188,10 +192,10 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 						text={<p className={styles.footer_button_text}>Record</p>}
 					/>
 					<PopoverButton
-						usePopup={records.length !== 0}
+						usePopup={isRunning || records.length !== 0}
 						button={
 							<Button
-								onClick={records.length === 0 ? resetButtonHandler : undefined}
+								onClick={!isRunning && records.length === 0 ? resetButtonHandler : undefined}
 								className={styles.footer_buttons_button}
 								intent={Intent.DANGER}
 								text={<p className={styles.footer_button_text}>Reset</p>}
@@ -201,8 +205,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 							<div key="text">
 								<H5>Confirm Reset</H5>
 								<p>
-									{`Are you sure you want to reset the stopwatch and delete
-									${records.length < 2 ? "this record" : `all ${records.length} records`}?`}
+									{`Are you sure you want to reset the stopwatch${records.length > 1 ? ` and delete all ${records.length} marks` : records.length > 0 ? " and delete the contained mark" : ""}?`}
 								</p>
 								<div
 									style={{
@@ -219,12 +222,12 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 										Cancel
 									</Button>
 									<Button
-										onClick={closeButtonHandler}
+										onClick={resetButtonHandler}
 										intent={Intent.DANGER}
 										className={Classes.POPOVER2_DISMISS}
 										large
 									>
-										Delete
+										Reset
 									</Button>
 								</div>
 							</div>

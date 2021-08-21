@@ -10,7 +10,6 @@ const useRecords = (initialArray?: RecordProps[]) => {
 
 	const addAt = (position: number, record: RecordProps) => {
 		// console.log(`INSERT AT ${position}`);
-
 		setRecords((prevRecords) => {
 			const altArr = prevRecords.slice();
 			altArr.splice(position, 0, record);
