@@ -22,53 +22,42 @@ import { RecordProps } from "../../Types/record";
 const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 	(props) => {
 		const [state, dispatch] = useStore(false);
-		const stopwatchState = state.stopwatches.find(
-			(s: StopwatchProps) => s.id === props.id
+		const stopwatchState = state.stopwatches[props.id];
+		const { start: startStopwatch, reset: resetStopwatch } = useStopwatch(
+			(currentTime) => {
+				dispatch("SET_STOPWATCH_TIME", currentTime);
+			}
 		);
-		const {
-			start: startStopwatch,
-			// pause: pauseStopwatch,
-			reset: resetStopwatch,
-			isRunning,
-		} = useStopwatch((currentTime) => {
-			dispatch("UPDATE_TIME", {stopwatchId: props.id, time: currentTime})
-		});
 		const copyToClipboard = useCopyToClipboard()[1];
 		const [copied, setCopied] = useState(false);
 
+		// Timeout for copy text
+		useTimeout(() => setCopied(false), copied ? 3000 : null);
+
+		const marksCount = () => {
+			return Object.entries(stopwatchState.marks).length;
+		};
+
+		const closeButtonHandler = () => {
+			dispatch("DELETE_STOPWATCH", props.id);
+		};
+
 		const startButtonHandler = () => {
 			startStopwatch();
-		};
-
-		const resetCopyText = () => {
-			setCopied(false);
-		};
-
-		// Timeout for copy text
-		useTimeout(resetCopyText, copied ? 3000 : null);
-
-		// const pauseButtonHandler = () => {
-		// 	pauseStopwatch();
-		// };
-
-		const resetButtonHandler = () => {
-			resetStopwatch();
-			dispatch("CLEAR_MARKS", props.id);
-			dispatch("CLEAR_TIME", props.id);
-			setCopied(false);
-
+			dispatch("SET_STOPWATCH_RUNNING", true);
 		};
 		const recordButtonHandler = () => {
-			if (isRunning)
-				dispatch("RECORD_MARK", {
-					id: props.id,
-					mark: { id: randomId(), time: stopwatchState.time },
-				});
-			// addRecord({
-			// 	id: randomId(),
-			// 	time: currentTime,
-			// });
+			if (stopwatchState.isRunning)
+				dispatch("INSERT_STOPWATCH_MARK", stopwatchState.time);
 		};
+		const resetButtonHandler = () => {
+			resetStopwatch();
+			dispatch("SET_STOPWATCH_RUNNING", false);
+			dispatch("DELETE_STOPWATCH_MARKS");
+			dispatch("SET_STOPWATCH_TIME", 0);
+			setCopied(false);
+		};
+
 		const copyButtonHandler = () => {
 			const copyDataToClipboard = async () => {
 				let recordsStr = "";
@@ -80,28 +69,20 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 					setCopied(true);
 				}
 			};
-
 			copyDataToClipboard();
 		};
-		const closeButtonHandler = () => {
-			dispatch("REMOVE_STOPWATCH", props.id);
-		};
-		const removeRecordHandler = (id: string) => {
-			dispatch("CLEAR_MARK", { stopwatchId: props.id, markId: id });
-		};
-		const addRecordHandler = (index: number) => {
-			dispatch("RECORD_MARK_AT", {
-				stopwatchId: props.id,
+
+		const addMarkHandler = (index: number) => {
+			dispatch("INSERT_STOPWATCH_MARK_AT", {
 				index,
-				mark: {
-					id: randomId(),
-					time: 0,
-				},
+				time: 0,
 			});
+		};
+		const removeMarkHandler = (id: string) => {
+			dispatch("DELETE_STOPWATCH_MARK", id);
 		};
 
 		return (
-			
 			<div className={styles.container}>
 				{/* TODO: Rerendering too much */}
 				<header className={styles.header}>
@@ -113,11 +94,14 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 						/>
 						<span className={styles.space}></span>
 						<PopoverButton
-							usePopup={isRunning || stopwatchState.marks.length !== 0}
+							usePopup={
+								stopwatchState.isRunning || marksCount() !== 0
+							}
 							button={
 								<Button
 									onClick={
-										!isRunning && stopwatchState.marks.length === 0
+										!stopwatchState.isRunning &&
+										marksCount() === 0
 											? closeButtonHandler
 											: undefined
 									}
@@ -133,9 +117,9 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 									<H5>Confirm Delete</H5>
 									<p>
 										{`Are you sure you want to delete this stopwatch${
-											stopwatchState.marks.length > 1
-												? ` and all ${stopwatchState.marks.length} marks`
-												: stopwatchState.marks.length > 0
+											marksCount() > 1
+												? ` and all ${marksCount()} marks`
+												: marksCount() > 0
 												? " the contained mark"
 												: ""
 										}?`}
@@ -169,14 +153,14 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 					</div>
 					<div className={styles.header_timerBar}>
 						<h4 className={styles.header_timeBar_counter}>
-							{stopwatchState.marks.length} Total
+							{marksCount()} Total
 						</h4>
 						<span className={styles.space}></span>
 						<Button
 							onClick={copyButtonHandler}
 							rightIcon="clipboard"
 							intent={Intent.PRIMARY}
-							disabled={stopwatchState.marks.length === 0}
+							disabled={marksCount() === 0}
 							large
 							minimal
 						>
@@ -185,16 +169,19 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 					</div>
 				</header>
 				<ul className={styles.record_list}>
-					{stopwatchState.marks.map((r: RecordProps, i: number) => (
-						<Record
-							key={r.id}
-							id={r.id}
-							place={i + 1}
-							time={r.time}
-							onAdd={addRecordHandler}
-							onRemove={removeRecordHandler}
-						/>
-					))}
+					{/* Marks re-rendering too much */}
+					{Object.entries(stopwatchState.marks).map(
+						([id, time]: [string, any], i) => (
+							<Record
+								key={id}
+								id={id}
+								place={i + 1}
+								time={time}
+								onAdd={addMarkHandler}
+								onRemove={removeMarkHandler}
+							/>
+						)
+					)}
 				</ul>
 				<footer className={styles.footer}>
 					<h4 className={styles.footer_display}>
@@ -205,7 +192,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 							onClick={startButtonHandler}
 							className={styles.footer_buttons_button}
 							intent={Intent.SUCCESS}
-							disabled={isRunning}
+							disabled={stopwatchState.isRunning}
 							text={
 								<p className={styles.footer_button_text}>
 									{"Start"}
@@ -216,7 +203,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 							onClick={recordButtonHandler}
 							className={styles.footer_buttons_button}
 							intent={Intent.PRIMARY}
-							disabled={!isRunning}
+							disabled={!stopwatchState.isRunning}
 							text={
 								<p className={styles.footer_button_text}>
 									Record
@@ -224,11 +211,14 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 							}
 						/>
 						<PopoverButton
-							usePopup={isRunning || stopwatchState.marks.length !== 0}
+							usePopup={
+								stopwatchState.isRunning || marksCount() !== 0
+							}
 							button={
 								<Button
 									onClick={
-										!isRunning && stopwatchState.marks.length === 0
+										!stopwatchState.isRunning &&
+										marksCount() === 0
 											? resetButtonHandler
 											: undefined
 									}
@@ -250,9 +240,9 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 									<H5>Confirm Reset</H5>
 									<p>
 										{`Are you sure you want to reset the stopwatch${
-											stopwatchState.marks.length > 1
-												? ` and delete all ${stopwatchState.marks.length} marks`
-												: stopwatchState.marks.length > 0
+											marksCount() > 1
+												? ` and delete all ${marksCount()} marks`
+												: marksCount() > 0
 												? " and delete the contained mark"
 												: ""
 										}?`}

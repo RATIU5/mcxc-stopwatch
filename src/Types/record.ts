@@ -1,7 +1,4 @@
-export type RecordProps = {
-	id: string;
-	time: number;
-};
+export type RecordProps = { [id: string]: number };
 
 export type RecordComponentProps = {
 	place: number;

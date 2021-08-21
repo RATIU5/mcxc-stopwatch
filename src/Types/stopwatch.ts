@@ -2,10 +2,15 @@ import { RecordProps } from "./record";
 
 export type StopwatchProps = {
 	id: string;
-	dateCreated: number;
-	name?: string;
-	time?: number;
-	marks?: RecordProps[];
+	time: number;
+	marks: RecordProps;
+	name: string;
+};
+
+export type StopwatchObject = {
+	time: number;
+	marks: RecordProps;
+	name: string;
 };
 
 export type StopwatchActions = {

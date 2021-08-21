@@ -1,27 +1,27 @@
 import { useStore } from "../../store/store";
+// import { StopwatchObject } from "../../Types/stopwatch";
 import Stopwatch from "./Stopwatch";
 
 import styles from "./StopwatchManager.module.scss";
 
 const StopwatchManager: React.FunctionComponent = (props) => {
-	// console.log("RENDERING STOPWATCHMANAGER COMPONENT");
 	const [state] = useStore();
-	// console.log(state);
-	
 
 	return (
 		<ul className={styles.manager_list}>
-			{state.stopwatches.map((sw: any) => (
-				<li key={sw.id}>
-					<Stopwatch
-						id={sw.id}
-						name={sw.name}
-						dateCreated={sw.dateCreated}
-						time={sw.time}
-						marks={sw.records}
-					/>
-				</li>
-			))}
+			{Object.entries(state.stopwatches).map(
+				// Needs to be [string, StopwatchObject]
+				([id, sw]: [string, any]) => (
+					<li key={id}>
+						<Stopwatch
+							id={id}
+							name={sw.name}
+							time={sw.time}
+							marks={sw.records}
+						/>
+					</li>
+				)
+			)}
 		</ul>
 	);
 };

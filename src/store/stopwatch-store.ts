@@ -1,88 +1,98 @@
-import { StopwatchProps } from './../Types/stopwatch';
-import { RecordProps } from './../Types/record';
 import { randomId } from "./../util/functions";
 import { StoreActionsObj } from "../Types/store";
 import { initStore } from "./store";
 
 const configureStore = () => {
-	// console.log("CONFIGURING STORE");
-	
 	const actions: StoreActionsObj = {
-		RECORD_MARK: (state, {id, mark}) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			const stopwatch = newStopwatchesArray.find((s: StopwatchProps) => s.id === id);
-			if (stopwatch)
-				stopwatch.marks.push(mark);
+		SET_ACTIVE_STOPWATCH: (state, stopwatchId) => {
 			return {
 				...state,
-				stopwatches: newStopwatchesArray,
-			}
-		},
-		CLEAR_MARKS: (state, stopwatchId) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).marks = [];
-			return {
-				...state,
-				stopwatches: newStopwatchesArray
-			}
-		},
-		CLEAR_MARK: (state, {stopwatchId, markId}) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			const stopwatch = newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId);
-			stopwatch.marks = stopwatch.marks.filter((m: RecordProps) => m.id !== markId);
-			return {
-				...state,
-				stopwatches: newStopwatchesArray
-			}
-		},
-		RECORD_MARK_AT: (state, {stopwatchId, index, mark}) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).marks.splice(index, 0, mark);
-			return {
-				...state,
-				stopwatches: newStopwatchesArray
-			}
-		},
-		UPDATE_TIME: (state, {stopwatchId, time}) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).time = time;
-			return {
-				...state,
-				newStopwatchesArray
-			}
-		},
-		CLEAR_TIME: (state, stopwatchId) => {
-			const newStopwatchesArray = state.stopwatches.slice();
-			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).time = null;
-			return {
-				...state,
-				newStopwatchesArray
-			}
-		},
-		ADD_STOPWATCH: (state) => {		
-			return {
-				stopwatches: [
-					...state.stopwatches,
-					{
-						id: randomId(),
-						time: null,
-						offset: null,
-						isRunning: false,
-						marks: [],
-					},
-				],
+				activeId: stopwatchId,
 			};
 		},
-		REMOVE_STOPWATCH: (state, id) => {
-			return {
-				...state,
-				stopwatches: state.stopwatches.filter((sw: StopwatchProps) => sw.id !== id),
+		INSERT_STOPWATCH: (state) => {
+			console.log("INSERTED STOPWATCH");
+			const id = randomId();
+			const newState = { ...state };
+			newState.stopwatches[id] = {
+				time: 0,
+				offset: 0,
+				isRunning: false,
+				marks: [],
+			};
+			newState.activeId = id;
+			return { ...newState };
+		},
+		DELETE_STOPWATCH: (state, stopwatchId) => {
+			console.log("DELETED STOPWATCH");
+			const newState = { ...state };
+			if (newState.activeId === stopwatchId) newState.activeId = null;
+			newState.stopwatches[stopwatchId] &&
+				delete newState.stopwatches[stopwatchId];
+			return newState;
+		},
+		SET_STOPWATCH_TIME: (state, time) => {
+			const newState = { ...state };
+			if (newState.stopwatches[newState.activeId])
+				newState.stopwatches[newState.activeId].time = time;
+			return newState;
+		},
+		SET_STOPWATCH_RUNNING: (state, isRunning) => {
+			const newState = { ...state };
+			if (newState.stopwatches[newState.activeId])
+				newState.stopwatches[newState.activeId].isRunning = isRunning;
+			return newState;
+		},
+		INSERT_STOPWATCH_MARK: (state, time) => {
+			console.log("INSERTED STOPWATCH MARK");
+			const newState = { ...state };
+			const id = randomId();
+			if (newState.stopwatches[newState.activeId])
+				newState.stopwatches[newState.activeId].marks[id] = time;
+			return newState;
+		},
+		DELETE_STOPWATCH_MARKS: (state) => {
+			console.log("DELETED STOPWATCH MARKS");
+			const newState = { ...state };
+			if (newState.stopwatches[newState.activeId])
+				newState.stopwatches[newState.activeId].marks = [];
+			return newState;
+		},
+		DELETE_STOPWATCH_MARK: (state, markId) => {
+			console.log("DELETED STOPWATCH MARK");
+			const newState = { ...state };
+			if (newState.stopwatches[newState.activeId])
+				markId in newState.stopwatches[newState.activeId].marks &&
+					delete newState.stopwatches[newState.activeId].marks[
+						markId
+					];
+			return newState;
+		},
+		INSERT_STOPWATCH_MARK_AT: (state, { index, time }) => {
+			console.log("INSERTED STOPWATCH MARK AT");
+			const newId = randomId();
+			const newState = { ...state };
+			if (!newState.stopwatches[newState.activeId])
+				return { error: "stopwatches not defined" };
+			const marks = newState.stopwatches[newState.activeId].marks;
+			let i = 0;
+			const newMarks: any = {};
+
+			for (const id in marks) {
+				if (i === index) {
+					newMarks[newId] = time;
+				}
+				newMarks[id] = marks[id];
+				i++;
 			}
+			newState.stopwatches[newState.activeId].marks = newMarks;
+			return newState;
 		},
 	};
-	
+
 	initStore(actions, {
-		stopwatches: []
+		stopwatches: {},
+		activeId: null,
 	});
 };
 

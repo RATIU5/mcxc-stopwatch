@@ -4,14 +4,20 @@ import Layout from "./components/Layout/Layout";
 import StopwatchManager from "./components/Stopwatch/StopwatchManager";
 import { useStore } from "./store/store";
 import configureStore from "./store/stopwatch-store";
+import { randomId } from "./util/functions";
+import { StopwatchProps } from "./Types/stopwatch";
+
+import { FocusStyleManager } from "@blueprintjs/core";
 
 import "./global.scss";
 
 configureStore();
 
 function App() {
+	FocusStyleManager.onlyShowFocusOnTabs();
 
 	const [state, dispatch] = useStore();
+	const activeStopwatch = state.stopwatches[state.activeId];
 
 	const hotkeys: HotkeyConfig[] = useMemo(
 		() => [
@@ -19,16 +25,18 @@ function App() {
 				combo: "Space",
 				global: true,
 				label: "Record mark",
-				onKeyDown: () => {
-					console.log("PRESS");
+				onKeyDown: (e) => {
+					e.preventDefault();
+					if (activeStopwatch?.isRunning)
+						dispatch("INSERT_STOPWATCH_MARK", activeStopwatch.time);
 				},
 			},
 		],
-		[]
+		[dispatch, activeStopwatch?.isRunning, activeStopwatch?.time]
 	);
 
 	const addStopwatchHandler = () => {
-		dispatch("ADD_STOPWATCH");
+		dispatch("INSERT_STOPWATCH");
 	};
 
 	// Use context to pass functions here for keyboard shortcuts
