@@ -54,7 +54,8 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo((props) =>
 
 	const resetButtonHandler = () => {
 		resetStopwatch();
-		clearRecords();
+		// clearRecords();
+		dispatch("CLEAR_MARKS", props.id)
 		setCopied(false);
 	};
 	const recordButtonHandler = () => {

@@ -11,10 +11,17 @@ const configureStore = () => {
 		RECORD_MARK: (state, {id, mark}) => {
 			const newStopwatchesArray = state.stopwatches;
 			newStopwatchesArray.find((s: StopwatchProps) => s.id === id).marks.push(mark);
-			console.log(newStopwatchesArray);
 			return {
 				...state,
-				stopwatches: [...newStopwatchesArray],
+				stopwatches: newStopwatchesArray,
+			}
+		},
+		CLEAR_MARKS: (state, stopwatchId) => {
+			const newStopwatchesArray = state.stopwatches;
+			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).marks = [];
+			return {
+				...state,
+				stopwatches: newStopwatchesArray
 			}
 		},
 		ADD_STOPWATCH: (state) => {		
