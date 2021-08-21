@@ -17,8 +17,8 @@ const StopwatchManager: React.FunctionComponent = (props) => {
 						id={sw.id}
 						name={sw.name}
 						dateCreated={sw.dateCreated}
-						initialTime={sw.time}
-						initialRecords={sw.records}
+						time={sw.time}
+						marks={sw.records}
 					/>
 				</li>
 			))}

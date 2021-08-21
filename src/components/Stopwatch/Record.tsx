@@ -1,10 +1,11 @@
 import { Button, Intent } from "@blueprintjs/core";
+import React from "react";
 import { conf } from "../../conf";
 import { RecordComponentProps } from "../../Types/record";
 import { displayTime } from "../../util/functions";
 import styles from "./Stopwatch.module.scss";
 
-const Record: React.FunctionComponent<RecordComponentProps> = (props) => {
+const Record: React.FunctionComponent<RecordComponentProps> = React.memo((props) => {
 	const removeRecordHandler = () => {
 		props.onRemove(props.id);
 	};
@@ -36,6 +37,6 @@ const Record: React.FunctionComponent<RecordComponentProps> = (props) => {
 			/>
 		</li>
 	);
-};
+});
 
 export default Record;

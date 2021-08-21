@@ -9,15 +9,17 @@ const configureStore = () => {
 	
 	const actions: StoreActionsObj = {
 		RECORD_MARK: (state, {id, mark}) => {
-			const newStopwatchesArray = state.stopwatches;
-			newStopwatchesArray.find((s: StopwatchProps) => s.id === id).marks.push(mark);
+			const newStopwatchesArray = state.stopwatches.slice();
+			const stopwatch = newStopwatchesArray.find((s: StopwatchProps) => s.id === id);
+			if (stopwatch)
+				stopwatch.marks.push(mark);
 			return {
 				...state,
 				stopwatches: newStopwatchesArray,
 			}
 		},
 		CLEAR_MARKS: (state, stopwatchId) => {
-			const newStopwatchesArray = state.stopwatches;
+			const newStopwatchesArray = state.stopwatches.slice();
 			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).marks = [];
 			return {
 				...state,
@@ -25,9 +27,17 @@ const configureStore = () => {
 			}
 		},
 		CLEAR_MARK: (state, {stopwatchId, markId}) => {
-			const newStopwatchesArray = state.stopwatches;
+			const newStopwatchesArray = state.stopwatches.slice();
 			const stopwatch = newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId);
 			stopwatch.marks = stopwatch.marks.filter((m: RecordProps) => m.id !== markId);
+			return {
+				...state,
+				stopwatches: newStopwatchesArray
+			}
+		},
+		RECORD_MARK_AT: (state, {stopwatchId, index, mark}) => {
+			const newStopwatchesArray = state.stopwatches.slice();
+			newStopwatchesArray.find((s: StopwatchProps) => s.id === stopwatchId).marks.splice(index, 0, mark);
 			return {
 				...state,
 				stopwatches: newStopwatchesArray
