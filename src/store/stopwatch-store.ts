@@ -5,6 +5,8 @@ import { initStore } from "./store";
 const configureStore = () => {
 	const actions: StoreActionsObj = {
 		SET_ACTIVE_STOPWATCH: (state, stopwatchId) => {
+			console.log("SET STOPWATCH ACTIVE");
+
 			return {
 				...state,
 				activeId: stopwatchId,
@@ -20,8 +22,8 @@ const configureStore = () => {
 				isRunning: false,
 				marks: [],
 			};
-			newState.activeId = id;
-			return { ...newState };
+			// newState.activeId = id;
+			return { ...newState, activeId: id };
 		},
 		DELETE_STOPWATCH: (state, stopwatchId) => {
 			console.log("DELETED STOPWATCH");
@@ -38,6 +40,7 @@ const configureStore = () => {
 			return newState;
 		},
 		SET_STOPWATCH_RUNNING: (state, isRunning) => {
+			console.log("SET STOPWATCH RUNNING");
 			const newState = { ...state };
 			if (newState.stopwatches[newState.activeId])
 				newState.stopwatches[newState.activeId].isRunning = isRunning;

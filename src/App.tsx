@@ -8,6 +8,7 @@ import configureStore from "./store/stopwatch-store";
 import { FocusStyleManager } from "@blueprintjs/core";
 
 import "./global.scss";
+import { useRef } from "react";
 
 configureStore();
 
@@ -16,6 +17,7 @@ function App() {
 
 	const [state, dispatch] = useStore();
 	const activeStopwatch = state.stopwatches[state.activeId];
+	const newStopwatchBtnRef = useRef<Button>(null);
 
 	const hotkeys: HotkeyConfig[] = useMemo(
 		() => [
@@ -26,7 +28,10 @@ function App() {
 				onKeyDown: (e) => {
 					e.preventDefault();
 					if (activeStopwatch?.isRunning)
-						dispatch("INSERT_STOPWATCH_MARK", activeStopwatch.time);
+						dispatch(
+							"INSERT_STOPWATCH_MARK",
+							activeStopwatch?.time
+						);
 				},
 			},
 		],
@@ -35,6 +40,8 @@ function App() {
 
 	const addStopwatchHandler = () => {
 		dispatch("INSERT_STOPWATCH");
+
+		newStopwatchBtnRef.current?.buttonRef?.blur();
 	};
 
 	// Use context to pass functions here for keyboard shortcuts
@@ -44,7 +51,12 @@ function App() {
 		<>
 			<HotkeysTarget2 hotkeys={hotkeys}>
 				<Layout>
-					<Button onClick={addStopwatchHandler}>New Stopwatch</Button>
+					<Button
+						ref={newStopwatchBtnRef}
+						onClick={addStopwatchHandler}
+					>
+						New Stopwatch
+					</Button>
 					<StopwatchManager />
 				</Layout>
 			</HotkeysTarget2>

@@ -6,7 +6,7 @@ import {
 	Intent,
 } from "@blueprintjs/core";
 import PopoverButton from "../UI/PopupButton";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { conf } from "../../conf";
 import useStopwatch from "../../hooks/use_stopwatch";
 import { StopwatchProps } from "../../Types/stopwatch";
@@ -31,6 +31,8 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		const copyToClipboard = useCopyToClipboard()[1];
 		const [copied, setCopied] = useState(false);
 
+		const stopwatchRef = useRef<HTMLDivElement>(null);
+
 		// Timeout for copy text
 		useTimeout(() => setCopied(false), copied ? 3000 : null);
 
@@ -45,10 +47,12 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		const startButtonHandler = () => {
 			startStopwatch();
 			dispatch("SET_STOPWATCH_RUNNING", true);
+			stopwatchRef.current?.focus();
 		};
 		const recordButtonHandler = () => {
 			if (stopwatchState.isRunning)
 				dispatch("INSERT_STOPWATCH_MARK", stopwatchState.time);
+			stopwatchRef.current?.focus();
 		};
 		const resetButtonHandler = () => {
 			resetStopwatch();
@@ -56,6 +60,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 			dispatch("DELETE_STOPWATCH_MARKS");
 			dispatch("SET_STOPWATCH_TIME", 0);
 			setCopied(false);
+			stopwatchRef.current?.focus();
 		};
 
 		const copyButtonHandler = () => {
@@ -70,6 +75,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 				}
 			};
 			copyDataToClipboard();
+			stopwatchRef.current?.focus();
 		};
 
 		const addMarkHandler = (index: number) => {
@@ -83,7 +89,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		};
 
 		return (
-			<div className={styles.container}>
+			<div className={styles.container} ref={stopwatchRef} tabIndex={1}>
 				{/* TODO: Rerendering too much */}
 				<header className={styles.header}>
 					<div className={styles.header_titleBar}>
