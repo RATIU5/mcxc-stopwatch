@@ -61,6 +61,7 @@
 // Body
 
 .record_list {
+	position: relative;
 	flex: 1 0;
 	width: 100%;
 	display: flex;
@@ -71,6 +72,11 @@
 	max-height: 18.2em;
 	overflow: auto;
 	z-index: 0;
+}
+
+.record_list_item_last {
+	padding: 0.9rem;
+	bottom: 0;
 }
 
 .record_list_item {

@@ -4,6 +4,7 @@ import {
 	EditableText,
 	H5,
 	Intent,
+	useHotkeys,
 } from "@blueprintjs/core";
 import PopoverButton from "../UI/PopupButton";
 import React, { useRef, useState } from "react";
@@ -18,6 +19,8 @@ import useCopyToClipboard from "../../hooks/use_copyToClipboard";
 import useTimeout from "../../hooks/use_timeout";
 import { useStore } from "../../store/store";
 import { RecordProps } from "../../Types/record";
+import { useEffect } from "react";
+import { useMemo } from "react";
 
 const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 	(props) => {
@@ -32,6 +35,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		const [copied, setCopied] = useState(false);
 
 		const stopwatchRef = useRef<HTMLDivElement>(null);
+		const bottomScrollItemRef = useRef<HTMLLIElement>(null);
 
 		// Timeout for copy text
 		useTimeout(() => setCopied(false), copied ? 3000 : null);
@@ -53,6 +57,7 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 			if (stopwatchState.isRunning)
 				dispatch("INSERT_STOPWATCH_MARK", stopwatchState.time);
 			stopwatchRef.current?.focus();
+			scrollToBottom();
 		};
 		const resetButtonHandler = () => {
 			resetStopwatch();
@@ -87,6 +92,24 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		const removeMarkHandler = (id: string) => {
 			dispatch("DELETE_STOPWATCH_MARK", id);
 		};
+
+		const scrollToBottom = () => {
+			bottomScrollItemRef.current?.scrollIntoView({ behavior: "smooth" });
+		};
+
+		useHotkeys(
+			useMemo(
+				() => [
+					{
+						combo: "Space",
+						global: true,
+						label: "Scroll to bottom",
+						onKeyDown: () => scrollToBottom(),
+					},
+				],
+				[]
+			)
+		);
 
 		return (
 			<div className={styles.container} ref={stopwatchRef} tabIndex={1}>
@@ -188,6 +211,10 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 							/>
 						)
 					)}
+					<li
+						className={styles.record_list_item_last}
+						ref={bottomScrollItemRef}
+					></li>
 				</ul>
 				<footer className={styles.footer}>
 					<h4 className={styles.footer_display}>
