@@ -19,7 +19,6 @@ import useCopyToClipboard from "../../hooks/use_copyToClipboard";
 import useTimeout from "../../hooks/use_timeout";
 import { useStore } from "../../store/store";
 import { RecordProps } from "../../Types/record";
-import { useEffect } from "react";
 import { useMemo } from "react";
 
 const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(

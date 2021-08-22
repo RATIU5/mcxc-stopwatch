@@ -9,6 +9,7 @@ import { FocusStyleManager } from "@blueprintjs/core";
 
 import "./global.scss";
 import { useRef } from "react";
+import { useState } from "react";
 
 configureStore();
 
@@ -18,6 +19,7 @@ function App() {
 	const [state, dispatch] = useStore();
 	const activeStopwatch = state.stopwatches[state.activeId];
 	const newStopwatchBtnRef = useRef<Button>(null);
+	const [addBtnDisabled, setAddBtnDisabled] = useState(false);
 
 	const hotkeys: HotkeyConfig[] = useMemo(
 		() => [
@@ -40,7 +42,10 @@ function App() {
 
 	const addStopwatchHandler = () => {
 		dispatch("INSERT_STOPWATCH");
-
+		if (Object.entries(state.stopwatches).length > 0) {
+			setAddBtnDisabled(true);
+			return;
+		}
 		newStopwatchBtnRef.current?.buttonRef?.blur();
 	};
 
@@ -54,6 +59,7 @@ function App() {
 					<Button
 						ref={newStopwatchBtnRef}
 						onClick={addStopwatchHandler}
+						disabled={addBtnDisabled}
 					>
 						New Stopwatch
 					</Button>
