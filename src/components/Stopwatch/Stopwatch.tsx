@@ -18,7 +18,6 @@ import { Classes } from "@blueprintjs/popover2";
 import useCopyToClipboard from "../../hooks/use_copyToClipboard";
 import useTimeout from "../../hooks/use_timeout";
 import { useStore } from "../../store/store";
-import { RecordProps } from "../../Types/record";
 import { useMemo } from "react";
 
 const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
@@ -70,9 +69,13 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 		const copyButtonHandler = () => {
 			const copyDataToClipboard = async () => {
 				let recordsStr = "";
-				stopwatchState.marks.forEach((e: RecordProps) => {
-					recordsStr += displayTime(e.time, conf.timeFormat) + "\n";
-				});
+
+				Object.entries(stopwatchState.marks).forEach(
+					([id, time]: [string, any]) => {
+						// @ts-ignore
+						recordsStr += displayTime(time, conf.timeFormat) + "\n";
+					}
+				);
 
 				if (await copyToClipboard(recordsStr)) {
 					setCopied(true);
@@ -103,7 +106,14 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 						combo: "Space",
 						global: true,
 						label: "Scroll to bottom",
-						onKeyDown: () => scrollToBottom(),
+						onKeyDown: () => {
+							if (
+								!stopwatchState?.isRunning &&
+								state.activeId === props.id
+							)
+								startButtonHandler();
+							scrollToBottom();
+						},
 					},
 				],
 				[]

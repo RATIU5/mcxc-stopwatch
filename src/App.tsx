@@ -29,6 +29,7 @@ function App() {
 				label: "Record mark",
 				onKeyDown: (e) => {
 					e.preventDefault();
+
 					if (activeStopwatch?.isRunning)
 						dispatch(
 							"INSERT_STOPWATCH_MARK",
