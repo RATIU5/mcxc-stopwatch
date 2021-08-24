@@ -7,7 +7,7 @@ import {
 	useHotkeys,
 } from "@blueprintjs/core";
 import PopoverButton from "../UI/PopupButton";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { conf } from "../../conf";
 import useStopwatch from "../../hooks/use_stopwatch";
 import { StopwatchProps } from "../../Types/stopwatch";
@@ -46,11 +46,11 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 			dispatch("DELETE_STOPWATCH", props.id);
 		};
 
-		const startButtonHandler = () => {
+		const startButtonHandler = useCallback(() => {
 			startStopwatch();
 			dispatch("SET_STOPWATCH_RUNNING", true);
 			stopwatchRef.current?.focus();
-		};
+		}, [dispatch, startStopwatch]);
 		const recordButtonHandler = () => {
 			if (stopwatchState.isRunning)
 				dispatch("INSERT_STOPWATCH_MARK", stopwatchState.time);
