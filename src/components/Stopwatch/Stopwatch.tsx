@@ -116,7 +116,12 @@ const Stopwatch: React.FunctionComponent<StopwatchProps> = React.memo(
 						},
 					},
 				],
-				[]
+				[
+					props.id,
+					startButtonHandler,
+					stopwatchState?.isRunning,
+					state.activeId,
+				]
 			)
 		);
 
